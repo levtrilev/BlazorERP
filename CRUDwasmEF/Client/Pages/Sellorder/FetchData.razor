@@ -1,0 +1,72 @@
+﻿@page "/sellorder"
+@inject HttpClient client
+@inject IJSRuntime js
+@using CRUDwasmEF.Shared.Models
+
+<h3>Sell Orders</h3>
+<small>Add orders.</small>
+<div class="form-group">
+    <a class="btn btn-success" href="sellorder/create"><i class="oi oi-plus"></i> Create New</a>
+</div>
+<br>
+
+@if (orders == null)
+{
+    <text>Loading...</text>
+}
+else if (orders.Length == 0)
+{
+    <text>No Records Found.</text>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Number</th>
+                <th>Date</th>
+                <th>CustomerName</th>
+                <th>CustomerId</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (SellOrder order in orders)
+            {
+            <tr>
+                <td>@order.Id</td>
+                <td>@order.Name</td>
+                <td>@order.OrderNumber</td>
+                <td>@order.OrderDate</td>
+                <td>@order.CustomerName</td>
+                <td>@order.CustomerId</td>
+                <td>
+                    <a class="btn btn-success" href="sellorder/edit/@order.Id">Edit</a>
+                    <button class="btn btn-danger" @onclick="@(() => Delete(order.Id))">Delete</button>
+                </td>
+            </tr>
+            }
+
+        </tbody>
+    </table>
+}
+@code {
+    SellOrder[] orders { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        orders = await client.GetFromJsonAsync<SellOrder[]>("api/sellorder");
+    }
+
+    async Task Delete(int orderId)
+    {
+        var order = orders.First(x => x.Id == orderId);
+
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {order.Name}'s ({order.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/sellorder/{orderId}");
+            await OnInitializedAsync();
+        }
+    }
+}

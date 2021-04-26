@@ -1,0 +1,17 @@
+﻿@page "/project/create"
+@inject HttpClient http
+@inject NavigationManager uriHelper
+
+<h3>Create</h3>
+<span>some text in span</span>
+<Form ButtonText="Create Project" proj="@proj"
+      OnValidSubmit="@CreateProject" />
+
+@code {
+    Project proj = new Project();
+    async Task CreateProject()
+    {
+        await http.PostAsJsonAsync("api/project", proj);
+        uriHelper.NavigateTo("project");
+    }
+}

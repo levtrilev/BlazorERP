@@ -1,0 +1,67 @@
+﻿@inject HttpClient client
+@inject IJSRuntime js
+@using CRUDwasmEF.Shared.Models
+
+<div class="dialog-container">
+    <div class="dialog">
+        <div class="dialog-title">
+            <h2>Выберите значение из справочника</h2>
+            Справочник: Developers
+        </div>
+        <form class="dialog-body">
+            @if (Developers != null)
+            {
+                <select @onchange="ItemSelected" size="4" style="width:60%;">
+                    @foreach (var person in Developers)
+                    {
+                        <option value="@person.Id.ToString()">@person.LastName</option>
+                    }
+                </select>
+            }
+            @if (SelectedPerson != null)
+            {
+                <br />
+                <div>@SelectedPerson.LastName</div>
+            }
+        </form>
+
+        <div class="dialog-buttons">
+            <button class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
+            <span class="mr-center">
+                @if (SelectedPerson != null)
+                {
+                    <span class="price">SelectedPerson Id: @SelectedPerson.Id</span>
+                }
+                else
+                {
+                    <span class="price">SelectedPerson Id: not selected yet</span>
+                }
+            </span>
+            <button class="btn btn-success ml-auto" @onclick="OnSavePressed">Save ></button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback<Developer> OnSave { get; set; }
+    //[Parameter] public List<Developer> People { get; set; }
+    [Parameter] public Developer[] Developers { get; set; }
+
+    Developer SelectedPerson = null;
+
+    void ItemSelected(ChangeEventArgs args)
+    {
+        SelectedPerson = (from p in Developers where p.Id == Convert.ToInt32(args.Value.ToString()) select p).FirstOrDefault();
+    }
+
+    void OnSavePressed()
+    {
+        if (SelectedPerson != null)
+        {
+            OnSave.InvokeAsync(SelectedPerson);
+        }
+        else
+            OnSave.InvokeAsync(null);
+    }
+}

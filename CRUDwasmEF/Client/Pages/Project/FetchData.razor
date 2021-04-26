@@ -1,0 +1,71 @@
+﻿@page "/project"
+@inject HttpClient client
+@inject IJSRuntime js
+@using CRUDwasmEF.Shared.Models
+
+<h3>Projects</h3>
+<small>Add projects.</small>
+<div class="form-group">
+    <a class="btn btn-success" href="project/create"><i class="oi oi-plus"></i> Create New</a>
+</div>
+<br>
+
+@if (projects == null)
+{
+    <text>Loading...</text>
+}
+else if (projects.Length == 0)
+{
+    <text>No Records Found.</text>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Teamlid Id</th>
+                <th>Teamlid First Name</th>
+                <th>Teamlid Last Name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Project proj in projects)
+            {
+            <tr>
+                <td>@proj.Id</td>
+                <td>@proj.Name</td>
+                @*<td>@(Convert.ToInt32(proj.Teamlid))</td>*@
+                <td>@proj.TeamlidId</td>
+                <td>@proj.TeamlidFirstName</td>
+                <td>@proj.TeamlidLastName</td>
+                <td>
+                    <a class="btn btn-success" href="project/edit/@proj.Id">Edit</a>
+                    <button class="btn btn-danger" @onclick="@(() => Delete(proj.Id))">Delete</button>
+                </td>
+            </tr>
+            }
+
+        </tbody>
+    </table>
+}
+@code {
+    Project[] projects { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        projects = await client.GetFromJsonAsync<Project[]>("api/project");
+    }
+
+    async Task Delete(int projectId)
+    {
+        var proj = projects.First(x => x.Id == projectId);
+        
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {proj.Name}'s ({proj.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/project/{projectId}");
+            await OnInitializedAsync();
+        }
+    }
+}

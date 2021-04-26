@@ -1,0 +1,27 @@
+﻿@page "/project/edit/{projectId:int}"
+@inject HttpClient http
+@inject NavigationManager uriHelper
+@inject IJSRuntime js
+
+<h3>Edit</h3>
+
+<Form ButtonText="Update" proj="proj"
+      OnValidSubmit="@EditProject" />
+
+@code {
+    [Parameter] public int projectId { get; set; }
+    Project proj = new Project();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        proj = await http.GetFromJsonAsync<Project>($"api/project/{projectId}");
+    }
+
+    async Task EditProject()
+    {
+        await http.PutAsJsonAsync("api/project", proj);
+        await js.InvokeVoidAsync("alert", $"Updated Successfully!");
+        uriHelper.NavigateTo("project");
+
+    }
+}

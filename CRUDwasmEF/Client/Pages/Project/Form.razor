@@ -1,0 +1,91 @@
+﻿@inject HttpClient client
+
+<EditForm Model="@proj" OnValidSubmit="@OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="form-group">
+        <label>Project Name :</label>
+        <div>
+            <InputText @bind-Value="@proj.Name" />
+            <ValidationMessage For="@(() => proj.Name)" />
+        </div>
+    </div>
+    @if (selectedDeveloper != null)
+    {
+        proj.TeamlidLastName = selectedDeveloper.LastName;
+        proj.TeamlidFirstName = selectedDeveloper.FirstName;
+        proj.TeamlidId = selectedDeveloper.Id;
+    }
+    <div class="form-group ">
+        <div>
+            <label>Teamlid First Name :</label>
+            <div>
+                <InputText @bind-Value="@proj.TeamlidFirstName" />
+                <ValidationMessage For="@(() => proj.TeamlidFirstName)" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group ">
+        <div>
+            <label>Teamlid Last Name :</label>
+            <div>
+                <InputText @bind-Value="@proj.TeamlidLastName" @ondblclick="ShowSelectDialog" />
+                <ValidationMessage For="@(() => proj.TeamlidLastName)" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group ">
+        <div>
+            <label>Teamlid Id :</label>
+            <div>
+                <InputNumber @bind-Value="@proj.TeamlidId" />
+                <ValidationMessage For="@(() => proj.TeamlidId)" />
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        @ButtonText
+    </button>
+
+</EditForm>
+@if (showingSelectDialog)
+{
+    <SelectDialog OnCancel="CancelSelectDialog"
+                  OnSave="SaveSelectDialog"
+                  Developers=@developers />
+}
+
+
+@code {
+    [Parameter] public Project proj { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Save";
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    Developer[] developers { get; set; }
+    //List<Developer> developers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        developers = await client.GetFromJsonAsync<Developer[]>("api/developer");
+    }
+
+    bool showingSelectDialog = false;
+    Developer selectedDeveloper;
+
+    void ShowSelectDialog()
+    {
+        showingSelectDialog = true;
+    }
+
+    void CancelSelectDialog()
+    {
+        showingSelectDialog = false;
+    }
+
+    void SaveSelectDialog(Developer dev)
+    {
+        showingSelectDialog = false;
+
+        selectedDeveloper = dev;
+    }
+}
