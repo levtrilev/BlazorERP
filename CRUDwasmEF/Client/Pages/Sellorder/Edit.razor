@@ -1,0 +1,26 @@
+﻿@page "/sellorder/edit/{orderId:int}"
+@inject HttpClient http
+@inject NavigationManager uriHelper
+@inject IJSRuntime js
+
+<h3>Edit</h3>
+
+<Form ButtonText="Update" ordr="ordr"
+      OnValidSubmit="@EditOrder" />
+
+@code {
+    [Parameter] public int orderId { get; set; }
+    SellOrder ordr = new SellOrder();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        ordr = await http.GetFromJsonAsync<SellOrder>($"api/sellorder/{orderId}");
+    }
+
+    async Task EditOrder()
+    {
+        await http.PutAsJsonAsync("api/sellorder", ordr);
+        await js.InvokeVoidAsync("alert", $"Updated Successfully!");
+        uriHelper.NavigateTo("sellorder");
+    }
+}

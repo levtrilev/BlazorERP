@@ -1,0 +1,16 @@
+﻿@page "/sellorder/create"
+@inject HttpClient http
+@inject NavigationManager uriHelper
+
+<h3>Create</h3>
+<Form ButtonText="Create Order" ordr="@ordr"
+      OnValidSubmit="@CreateOrder" />
+
+@code {
+    SellOrder ordr = new SellOrder();
+    async Task CreateOrder()
+    {
+        await http.PostAsJsonAsync("api/sellorder", ordr);
+        uriHelper.NavigateTo("sellorder");
+    }
+}

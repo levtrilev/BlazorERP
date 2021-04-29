@@ -1,0 +1,133 @@
+﻿@inject HttpClient client
+
+@using CRUDwasmEF.Client.Pages.Customer
+
+<EditForm Model="@ordr" OnValidSubmit="@OnValidSubmit">
+    <DataAnnotationsValidator />
+    @if (selectedCustomer != null)
+    {
+        ordr.CustomerName = selectedCustomer.Name;
+        ordr.CustomerId = selectedCustomer.Id;
+    }
+    <div class="form-group ">
+        <div>
+            <label>Order Id :</label>
+            <div>
+                <InputNumber @bind-Value="@ordr.Id" />
+                <ValidationMessage For="@(() => ordr.Id)" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group ">
+        <div>
+            <label>Order Name :</label>
+            <div>
+                <InputText @bind-Value="@ordr.Name" />
+                <ValidationMessage For="@(() => ordr.Name)" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group ">
+        <div>
+            <label>Order Number :</label>
+            <div>
+                <InputText @bind-Value="@ordr.OrderNumber" />
+                <ValidationMessage For="@(() => ordr.OrderNumber)" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group ">
+        <div>
+            <label>Order Date :</label>
+            <div>
+                <InputDate @bind-Value="@ordr.OrderDate" />
+                <ValidationMessage For="@(() => ordr.OrderDate)" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group ">
+        <div>
+            <label>OrderSum With VAT :</label>
+            <div>
+                <InputNumber @bind-Value="@ordr.OrderSumWithVAT" />
+                <ValidationMessage For="@(() => ordr.OrderSumWithVAT)" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group ">
+        <div>
+            <label>OrderSum VAT :</label>
+            <div>
+                <InputNumber @bind-Value="@ordr.OrderSumVAT" />
+                <ValidationMessage For="@(() => ordr.OrderSumVAT)" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group ">
+        <div>
+            <label>Customer Name :</label>
+            <div>
+                <InputText @bind-Value="@ordr.CustomerName" @ondblclick="ShowSelectCustomerDialog" />
+                <ValidationMessage For="@(() => ordr.CustomerName)" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group ">
+        <div>
+            <label>Customer Id :</label>
+            <div>
+                <InputNumber @bind-Value="@ordr.CustomerId" />
+                <ValidationMessage For="@(() => ordr.CustomerId)" />
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success">
+        @ButtonText
+    </button>
+
+</EditForm>
+@if (showingSelectCustomerDialog)
+{
+    <SelectCustomerDialog 
+                          OnCancel="CancelSelectCustomerDialog"
+                          OnSave="SaveSelectCustomerDialog" />
+}
+
+
+@code {
+    [Parameter] public SellOrder ordr { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Save";
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    //Customer[] customers; <customers=@customers/>
+
+    //Developer[] developers;
+    //List<Developer> developers;
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    //developers = await client.GetFromJsonAsync<Developer[]>("api/developer");
+    //    customers = await client.GetFromJsonAsync<Customer[]>("api/customer");
+    //    //customers = new Customer[] { new Customer { Id = 1, Name = "1111name" }, new Customer { Id = 2, Name = "2222name" } };
+    //}
+
+    bool showingSelectCustomerDialog = false;
+    Customer selectedCustomer;
+
+    void ShowSelectCustomerDialog()
+    {
+        showingSelectCustomerDialog = true;
+    }
+
+    void CancelSelectCustomerDialog()
+    {
+        showingSelectCustomerDialog = false;
+    }
+
+    void SaveSelectCustomerDialog(Customer cust)
+    {
+        showingSelectCustomerDialog = false;
+
+        selectedCustomer = cust;
+    }
+}

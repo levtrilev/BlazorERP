@@ -14,7 +14,7 @@ namespace CRUDwasmEF.Shared.Models
         public DateTime OrderDate { get; set; }
         public int CustomerId { get; set; }
         public string CustomerName { get; set; }
-        public decimal OrderSumWithWAT { get; set; }
-        public decimal OrderSumWAT { get; set; }
+        public decimal OrderSumWithVAT { get; set; }
+        public decimal OrderSumVAT { get; set; }
     }
 }

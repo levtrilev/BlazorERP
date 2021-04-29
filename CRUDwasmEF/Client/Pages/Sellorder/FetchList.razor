@@ -1,0 +1,63 @@
+﻿@page "/sellorder"
+@inject HttpClient client
+@inject IJSRuntime js
+@using CRUDwasmEF.Shared.Models
+
+<h3>Sell Orders</h3>
+<small>Add orders.</small>
+<div class="form-group">
+    <a class="btn btn-success" href="sellorder/create"><i class="oi oi-plus"></i> Create New</a>
+</div>
+<br>
+
+@if (orders == null)
+{
+    <text>Loading...</text>
+}
+else if (orders.Count() == 0)
+{
+    <text>No Records Found.</text>
+}
+else
+{
+<RadzenGrid PagerPosition="PagerPosition.TopAndBottom" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Advanced" AllowPaging="true" PageSize="4"
+            AllowSorting="true" Data="@orders" TItem="SellOrder" ColumnWidth="100px" AllowColumnResize="true" LogicalFilterOperator="LogicalFilterOperator.Or">
+    <Columns>
+        <RadzenGridColumn TItem="SellOrder" Property="Id" Title="ID" Width="50px" />
+        <RadzenGridColumn TItem="SellOrder" Property="Name" Title="Sell Order Name" />
+        <RadzenGridColumn TItem="SellOrder" Property="OrderNumber" Title="Number" Width="50px" />
+        <RadzenGridColumn TItem="SellOrder" Property="OrderDate" Title="Order Date" Width="50px">
+            <Template Context="data">
+                @String.Format("{0:d}", data.OrderDate)
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="SellOrder" Property="OrderSumWithVAT" Title="Order Sum" Width="50px" />
+        <RadzenGridColumn TItem="SellOrder" Property="CustomerName" Title="Customer Name" />
+        <RadzenGridColumn TItem="SellOrder" Property="CustomerId" Title="Customer Id" Width="50px" />
+        <RadzenGridColumn TItem="SellOrder" Property="CustomerId" Title="Edit-Delete" Width="80px">
+            <Template Context="data">
+                <a class="btn btn-success" href="sellorder/edit/@data.Id">Edit</a>
+                <button class="btn btn-danger" @onclick="@(() => Delete(data.Id))">Delete</button>
+            </Template>
+        </RadzenGridColumn>
+    </Columns>
+</RadzenGrid>
+}
+@code {
+    IEnumerable<SellOrder> orders { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        orders = await client.GetFromJsonAsync<SellOrder[]>("api/sellorder");
+    }
+
+    async Task Delete(int orderId)
+    {
+        var order = orders.First(x => x.Id == orderId);
+
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {order.Name}'s ({order.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/sellorder/{orderId}");
+            await OnInitializedAsync();
+        }
+    }
+}

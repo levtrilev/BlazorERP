@@ -1,0 +1,79 @@
+﻿@inject HttpClient client
+@inject IJSRuntime js
+@using CRUDwasmEF.Shared.Models
+
+<div class="dialog-container">
+    <div class="dialog">
+        <div class="dialog-title">
+            <h2>Выберите значение из справочника</h2>
+            Справочник: Customers
+        </div>
+        <form class="dialog-body">
+            @if (customers != null)
+            {
+                <select @onchange="ItemSelected" size="4" style="width:60%;">
+                    @foreach (var cust in customers)
+                    {
+                        <option value="@cust.Id.ToString()">@cust.Name</option>
+                    }
+                </select>
+            }
+            @if (SelectedCustomer != null)
+            {
+                <br />
+                <div>@SelectedCustomer.Name</div>
+            }
+        </form>
+
+        <div class="dialog-buttons">
+            <button class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
+            <span class="mr-center">
+                @if (SelectedCustomer != null)
+                {
+                    <span class="price">SelectedCustomer Id: @SelectedCustomer.Id</span>
+                }
+                else
+                {
+                    <span class="price">SelectedCustomer Id: not selected yet</span>
+                }
+            </span>
+            <button class="btn btn-success ml-auto" @onclick="OnSavePressed">Save ></button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback<Customer> OnSave { get; set; }
+    //[Parameter] public List<Developer> People { get; set; }
+    //[Parameter] public Customer[] customers { get; set; }
+
+    Customer SelectedCustomer = null;
+    Customer[] customers;
+    //List<Customer> customers;
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    customers = await client.GetFromJsonAsync<Customer[]>("api/customer");
+    //}
+    protected override async Task OnInitializedAsync()
+    {
+        //developers = await client.GetFromJsonAsync<Developer[]>("api/developer");
+        customers = await client.GetFromJsonAsync<Customer[]>("api/customer");
+        //customers = new Customer[] { new Customer { Id = 1, Name = "1111name" }, new Customer { Id = 2, Name = "2222name" } };
+    }
+    void ItemSelected(ChangeEventArgs args)
+    {
+        SelectedCustomer = (from c in customers where c.Id == Convert.ToInt32(args.Value.ToString()) select c).FirstOrDefault();
+    }
+
+    void OnSavePressed()
+    {
+        if (SelectedCustomer != null)
+        {
+            OnSave.InvokeAsync(SelectedCustomer);
+        }
+        else
+            OnSave.InvokeAsync(null);
+    }
+}

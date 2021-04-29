@@ -14,5 +14,6 @@ namespace CRUDwasmEF.Server.Data
         }
         public DbSet<Developer> Developers { get; set; }
         public DbSet<Project> Projects { get; set; }
+        public DbSet<Customer> Customers { get; set; }
     }
 }
